@@ -77,6 +77,7 @@ class ItemScorerModel(nn.Module):
         super(ItemScorerModel, self).__init__()
 
         # translator model for mapping from desired actions performed on ingredients to commands that the parser understands
+        # self.translator = CmdTranslator(device)
         self.translator = CmdTranslator.initialize_trained_model(device)
 
         # Word embedding (initialized from glove embeddings)

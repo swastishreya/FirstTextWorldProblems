@@ -15,7 +15,7 @@ import sys
 import yaml
 from utils import make_path
 
-from dalab.grid_search.grid_search import GridSearcher
+# from dalab.grid_search.grid_search import GridSearcher
 from utils import get_points
 from custom_agent import CustomAgent
 
@@ -89,14 +89,16 @@ class Environment:
 
 class Trainer:
     def __init__(self, game_dir):
-        self.agent = CustomAgent()
+        self.agent = CustomAgent(verbose=True)
         self.env = Environment(game_dir)
 
     def train(self):
         self.start_time = time()
 
-        for epoch_no in range(1, self.agent.nb_epochs + 1):
-            for game_no in tqdm(range(len(self.env.games))):
+        for epoch_no in tqdm(range(1, self.agent.nb_epochs + 1)):
+            print('Epoch {}'.format(epoch_no))
+            accuracy = 0.0
+            for game_no in range(len(self.env.games)):
                 obs, infos = self.env.reset()
                 self.agent.train()
 
@@ -114,8 +116,10 @@ class Trainer:
                 score = sum(scores) / self.agent.batch_size
 
                 score, possible_points, percentage = get_points(score, infos['extra.walkthrough'][0])
-                print('Score: {}/{}'.format(score, possible_points))
+                print('Score for game {}: {}/{}'.format(game_no+1, score, possible_points))
+                accuracy += score / possible_points
 
+            print('Accuracy {}'.format(accuracy/len(self.env.games)))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train an agent.")

@@ -7,4 +7,6 @@
 */tensorboard/*
 *venv*
 *.csv
-*weights/
+sample_games/*
+
+

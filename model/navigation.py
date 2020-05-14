@@ -19,6 +19,7 @@ else:
 class Navigation:
     """ Adapter for the Navigationmodel. Initilized it with the pre-trained weigths. """
     def __init__(self, device):
+        # self.model = NavigationModel(device=device)
         self.model = NavigationModel.initialize_trained_model(device=device)
 
     def __call__(self, x):

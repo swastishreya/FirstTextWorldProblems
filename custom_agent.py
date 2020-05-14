@@ -45,7 +45,7 @@ class CustomAgent:
         # set the statistics
         self._episode_has_started = False
         self.last_done = None
-        self.mode = "test"
+        self.mode = 'train'
         self.counter = StepCounter(self.batch_size, self.max_nb_steps_per_episode)
 
         # Init the models and its optimizer
@@ -145,8 +145,8 @@ class CustomAgent:
 
         if self.mode == 'test':
             return self.act_eval(obs, scores, dones, infos)
-        elif self.mode == 'manual_eval':
-            return self.manual_eval(obs, scores, dones, infos)
+        # elif self.mode == 'manual_eval':
+        #     return self.manual_eval(obs, scores, dones, infos)
 
         current_score = []
         # individually for every agent in the batch
