@@ -47,12 +47,12 @@ class StateNAction(object):
 
     def load_vocab_kge(self):
         ent = {}
-        with open('../entity2id.tsv', 'r') as f:
+        with open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/entity2id.tsv', 'r') as f:
             for line in f:
                 e, eid = line.split('\t')
                 ent[e.strip()] = int(eid.strip())
         rel = {}
-        with open('../relation2id.tsv', 'r') as f:
+        with open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/relation2id.tsv', 'r') as f:
             for line in f:
                 r, rid = line.split('\t')
                 rel[r.strip()] = int(rid.strip())
@@ -60,11 +60,11 @@ class StateNAction(object):
         return {'entity': ent, 'relation': rel}
 
     def load_vocab(self):
-        vocab = eval(open('../w2id.txt', 'r').readline())
+        vocab = eval(open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/w2id.txt', 'r').readline())
         return vocab
 
     def load_action_dictionary(self):
-        all_actions = eval(open('../act2id.txt', 'r').readline())
+        all_actions = eval(open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/act2id.txt', 'r').readline())
         return all_actions
 
     def update_state_base(self, visible_state):

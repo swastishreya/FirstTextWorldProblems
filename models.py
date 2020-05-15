@@ -153,14 +153,14 @@ class StateNetwork(nn.Module):
 
     def load_vocab_kge(self):
         ent = {}
-        with open('../entity2id.tsv', 'r') as f:
+        with open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/entity2id.tsv', 'r') as f:
             for line in f:
                 e, eid = line.split('\t')
                 ent[int(eid.strip())] = e.strip()
         return ent
 
     def load_vocab(self):
-        vocab = eval(open('../w2id.txt', 'r').readline())
+        vocab = eval(open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/w2id.txt', 'r').readline())
         return vocab
 
     def forward(self, graph_rep):

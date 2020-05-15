@@ -1,11 +1,12 @@
 f = open("vocab.txt", "r")
-line = f.readline().split('\n')[0]
+line = f.read().split('\n')
+print(line)
 i = 0
 d = {}
-while(line != ""):
-    d[line] = i
+for var in line:
+    print(var)
+    d[var] = i
     i += 1
-    line = f.readline().split('\n')[0]
 f.close()
 
 f = open("w2id.txt","w")
