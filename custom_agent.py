@@ -54,7 +54,7 @@ class CustomAgent:
                            bidirectional=self.config['model']['bidirectional'],
                            hidden_linear_size=self.config['model']['hidden_linear_size'])
         self.item_scorer = ItemScorer(device=self.device)
-        self.navigation_model = Navigation(device=self.device)
+        # self.navigation_model = Navigation(device=self.device)
         if 'optimizer' in self.config['training']:
             self.optimizer = optim.Adam(self.model.parameters(),
                                         self.config['training']['optimizer']['learning_rate'])
@@ -67,7 +67,7 @@ class CustomAgent:
 
         # choose the agent
         self.agent = lambda device, model: HAgent(device=device, model=model, item_scorer=self.item_scorer,
-                                                  hcp=self.config['general']['hcp'], navigation_model=self.navigation_model)
+                                                  hcp=self.config['general']['hcp'])#, navigation_model=self.navigation_model)
         # Command Queue
         self.command_q = None
 
