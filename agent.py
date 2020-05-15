@@ -4,18 +4,22 @@ import pandas as pd
 from recordclass import recordclass
 import os
 from time import sleep
+from representations import StateNAction
+from models import KGDQN
+from KGutils.schedule import *
 
 from navigator import Navigator
 from utils import flist, bcolors
+from params import params
 
 LearningInfo = recordclass('LearningInfo', 'score prob value action index possible_actions')
 
 class HAgent:
-    def __init__(self, device, model, item_scorer, navigation_model, hcp=4):
+    def __init__(self, device, model,item_scorer,hcp=4):
         self.device = device
         self.cmd_memory = flist()
         self.item_scorer = item_scorer
-        self.navigator = Navigator(navigation_model)
+        # self.navigator = Navigator(navigation_model)
         self.utils = None
         self.hcp = hcp
 
@@ -32,6 +36,16 @@ class HAgent:
         self.inventory = 'nothing'
         self.inventory_updated = False
         self.info = None
+
+        # added for KG part
+        self.state = StateNAction()
+        self.kg = KGDQN(params, self.state.all_actions).cuda()
+        self.params = params
+        self.num_frames = params['num_frames']
+        if params['scheduler_type'] == 'exponential':
+            self.e_scheduler = ExponentialSchedule(self.num_frames, params['e_decay'], params['e_final'])
+        elif params['scheduler_type'] == 'linear':
+            self.e_scheduler = LinearSchedule(self.num_frames, params['e_final'])
 
 
     def step(self, observation, info: Dict[str, Any], detailed_commands=False):
@@ -50,7 +64,12 @@ class HAgent:
         self.recipe = self._get_recipe(observation)
         location = Navigator.extract_location(self.description)
 
-        nav_commands = self.navigator.get_navigational_commands(self.description)
+        self.state.step(observation, pruned=self.params['pruned'])
+        total_frames = 0 # have to update this somehow later
+        epsilon = self.e_scheduler.value(total_frames)
+        state_embedding , possible_commands = self.kg.act(self.state, epsilon)
+
+        # nav_commands = self.navigator.get_navigational_commands(self.description)
 
         items = None
         if self._know_recipe():
@@ -62,10 +81,10 @@ class HAgent:
             self._update_util_locations(self.description, utils, location)
 
         # build the representation of the current game state (dictionary of strings)
-        state_description = self.build_state_description(self.description, items, location, observation, inventory)
+        state_description = self.build_state_description(self.description, items, state_embedding, observation, inventory)
 
         # generate a list of possible commands for the current game state
-        possible_commands = self.get_commands(self.description, items, location, inventory, nav_commands)
+        # possible_commands = self.get_commands(self.description, items, location, inventory, nav_commands)
 
 
         # ask the model for the next command
@@ -324,7 +343,7 @@ class HAgent:
 
 
     ### Input features construction
-    def build_state_description(self, description, items, location, observation, inventory):
+    def build_state_description(self, description, items, state_embedding, observation, inventory):
         """
         Builds the string representation of the current state of the game. The state has 8 'features' that all are
         arbitrarily long strings. Some features come directly from the agent's observation, e.g. 'observation', 'description',
@@ -335,11 +354,12 @@ class HAgent:
             'observation': observation.split('$$$$$$$')[-1].replace('\n\n', ' ').replace('\n', ' ').strip(),
             'missing_items': self._get_missing_items(items),
             'unnecessary_items': self._get_unnecessary_items(items, inventory),
-            'location': location,
+            # 'location': location,
             'description': self._get_description(description),
             'previous_cmds': self._get_previous_cmds(length=10),
             'required_utils': self._get_required_utils(items),
-            'discovered_locations': self._get_discovered_locations(),
+            'state_embedding': state_embedding
+            # 'discovered_locations': self._get_discovered_locations(),
         }
 
         for key, descr in state_description.items():
@@ -349,12 +369,12 @@ class HAgent:
         return state_description
 
 
-    def _get_discovered_locations(self):
-        # locations = list(self.navigator.graph.keys())
-        locations = self.navigator.discovered_locations
-        if len(locations) == 0:
-            return 'nothing'
-        return ' <SEP> '.join(locations)
+    # def _get_discovered_locations(self):
+    #     # locations = list(self.navigator.graph.keys())
+    #     locations = self.navigator.discovered_locations
+    #     if len(locations) == 0:
+    #         return 'nothing'
+    #     return ' <SEP> '.join(locations)
 
     def _get_required_utils(self, items):
         if items is None:
