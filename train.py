@@ -117,7 +117,7 @@ class Trainer:
 
                 score, possible_points, percentage = get_points(score, infos['extra.walkthrough'][0])
                 print('Score for game {}: {}/{}'.format(game_no+1, score, possible_points))
-                accuracy += score / possible_points
+                accuracy += percentage
 
             print('Accuracy {}'.format(accuracy/len(self.env.games)))
 
