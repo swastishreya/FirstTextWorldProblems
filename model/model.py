@@ -20,10 +20,10 @@ class Model(nn.Module):
     command that has the highest expected return.
     """
     # keys of the dictionary of the current game state
-    _KEYS = ['observation', 'missing_items', 'unnecessary_items', 'location', 'description', 'previous_cmds',
-             'required_utils', 'discovered_locations']
+    _KEYS = ['observation', 'missing_items', 'unnecessary_items', 'description', 'previous_cmds', 'state_embedding'
+             'required_utils']
 
-    def __init__(self, device, hidden_size=64, bidirectional=True, hidden_linear_size=128):
+    def __init__(self, device, state_embedding_dim=16, hidden_size=64, bidirectional=True, hidden_linear_size=128):
         super(Model, self).__init__()
 
         # Parameters
@@ -42,6 +42,9 @@ class Model(nn.Module):
             self.embedding.weight = nn.Parameter(self.tokenizer.embedding_init)
 
         # Model
+        # Change state_embedding (graph embedding) dimension to embedding_dim
+        self.graph_encoder = nn.Linear(state_embedding_dim, self.embedding_dim)
+
         # Encoder for the state dictionary
         self.observation_encoder = nn.ModuleDict(
             {k: nn.GRU(self.embedding_dim, self.hidden_size, batch_first=True, bidirectional=bidirectional).to(
@@ -73,9 +76,16 @@ class Model(nn.Module):
         :param commands: Set of possible commands
         :return: Best command from set of possible commands
         """
-        input_dict = self.tokenizer.process(state_description)
+        state_description_without_graph = {}
+        for state in state_description:
+            if state != 'state_embedding':
+                state_description_without_graph[state] = state_description[state]
+        input_dict = self.tokenizer.process(state_description_without_graph)
         command_strings = commands
         commands = self.tokenizer.process_cmds(commands, pad=True)
+
+        # Encode the state embedding (graph)
+        input_dict['state_embedding'] = self.graph_encoder(state_description['state_embedding'])
 
         # Encode the state_description
         obs_encoded = self._observation_encoding(input_dict)

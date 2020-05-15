@@ -67,7 +67,7 @@ class HAgent:
         self.state.step(observation, pruned=self.params['pruned'])
         total_frames = 0 # have to update this somehow later
         epsilon = self.e_scheduler.value(total_frames)
-        state_embedding , possible_commands = self.kg.act(self.state, epsilon)
+        state_embedding, possible_commands = self.kg.act(self.state, epsilon)
 
         # nav_commands = self.navigator.get_navigational_commands(self.description)
 
