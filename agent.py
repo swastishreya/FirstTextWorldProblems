@@ -65,7 +65,7 @@ class HAgent:
         self.recipe = self._get_recipe(observation)
         location = Navigator.extract_location(self.description)
 
-        self.state.step(self.description, pruned=self.params['pruned'])
+        self.state.step(self.description.strip(), pruned=self.params['pruned'])
         total_frames = 0 # have to update this somehow later
         epsilon = self.e_scheduler.value(total_frames)
         state_embedding, possible_commands = self.kg.act(self.state, epsilon)
