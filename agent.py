@@ -58,13 +58,14 @@ class HAgent:
         self.info = info
         self.reading = 'and start reading' in observation
 
+
         # retrieve the information about the inventory, description, recipe and location (different approaches for different HCPs)
         self.inventory, self.description = self._get_inventory_and_description(observation, info)
         inventory = [self.remove_articles(inv.strip()) for inv in self.inventory.strip().split('\n') if not 'carrying' in inv]
         self.recipe = self._get_recipe(observation)
         location = Navigator.extract_location(self.description)
 
-        self.state.step(observation, pruned=self.params['pruned'])
+        self.state.step(self.description, pruned=self.params['pruned'])
         total_frames = 0 # have to update this somehow later
         epsilon = self.e_scheduler.value(total_frames)
         state_embedding, possible_commands = self.kg.act(self.state, epsilon)

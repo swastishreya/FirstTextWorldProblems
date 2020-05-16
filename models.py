@@ -103,18 +103,18 @@ class KGDQN(nn.Module):
                 feasible_actions_rep = state.pruned_actions_rep
             # action_ids = feasible_actions_rep[random.randrange(len(feasible_actions_rep))]
             # picked = False
+        feasible_actions = [state.get_action_text(action) for action in feasible_actions_rep]
         with torch.no_grad():
             drqa_input = torch.LongTensor(state.drqa_input).unsqueeze_(0).cuda()
-
             encoded_doc = self.action_drqa(drqa_input, state)[1]
-            a_t = torch.LongTensor(feasible_actions_rep).cuda()#unsqueeze_(0).cuda()
+            # a_t = torch.LongTensor(feasible_actions_rep).cuda()#unsqueeze_(0).cuda()
 
         encoded_doc = encoded_doc.repeat(len(feasible_actions_rep), 1)
-        _, emb_a_t, _ = self.action_enc(a_t)
+        # _, emb_a_t, _ = self.action_enc(a_t)
         s_t = self.state_gat(graph_state_rep).unsqueeze_(0).repeat(len(feasible_actions_rep), 1).cuda()
         state_emb = torch.cat((s_t, encoded_doc), dim=1)
         state_emb = self.state_fc(state_emb)
-        return state_emb, emb_a_t#, picked, s_t[0].squeeze_(), fwd_at[max_idx].squeeze_()
+        return state_emb, feasible_actions#, picked, s_t[0].squeeze_(), fwd_at[max_idx].squeeze_()
 
 
 class StateNetwork(nn.Module):
