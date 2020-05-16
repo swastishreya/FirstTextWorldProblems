@@ -164,7 +164,7 @@ class StateNAction(object):
             if r not in remove:
                 add_rules.append(rule)
         edges = list(self.graph_state.edges)
-        print("add", add_rules)
+        # print("add", add_rules)
         for edge in edges:
             r = self.graph_state[edge[0]][edge[1]]['rel']
             if r in prev_remove:
@@ -179,10 +179,10 @@ class StateNAction(object):
             if u in self.vocab_kge['entity'].keys() and v in self.vocab_kge['entity'].keys():
                 if u != 'it' and v != 'it':
                     self.graph_state.add_edge(rule[0], rule[2], rel=rule[1])
-        print("pre", self.graph_state.edges)
+        # print("pre", self.graph_state.edges)
         if prev_room_subgraph is not None:
             self.graph_state.add_edges_from(prev_room_subgraph.edges)
-        print(self.graph_state.edges)
+        # print(self.graph_state.edges)
 
         return
     

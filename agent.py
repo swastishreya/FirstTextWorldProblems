@@ -358,8 +358,7 @@ class HAgent:
             # 'location': location,
             'description': self._get_description(description),
             'previous_cmds': self._get_previous_cmds(length=10),
-            'required_utils': self._get_required_utils(items),
-            'state_embedding': state_embedding
+            'required_utils': self._get_required_utils(items)
             # 'discovered_locations': self._get_discovered_locations(),
         }
 
@@ -367,6 +366,8 @@ class HAgent:
             state_description[key] = ' '.join([word.lower() if word not in ['<SEP>', '<DIR>'] else word for word in
                                       descr.replace('.', '').replace(',', '').replace('?', '').replace('!', '').replace(':','').replace('  ', ' ').strip().split()])
 
+        state_description['state_embedding'] = state_embedding
+        
         return state_description
 
 
