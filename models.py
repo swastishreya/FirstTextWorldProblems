@@ -106,9 +106,6 @@ class KGDQN(nn.Module):
         feasible_actions = [state.get_action_text(action) for action in feasible_actions_rep]
         with torch.no_grad():
             drqa_input = torch.LongTensor(state.drqa_input).unsqueeze_(0).cuda()
-            print("drqa_input")
-            print(drqa_input)
-            print(drqa_input.size())
             encoded_doc = self.action_drqa(drqa_input, state)[1]
             # a_t = torch.LongTensor(feasible_actions_rep).cuda()#unsqueeze_(0).cuda()
 
@@ -200,12 +197,7 @@ class ActionDrQA(nn.Module):
 
     def forward(self, vis_state_tensor, state):
         mask = torch.IntTensor([80] * vis_state_tensor.size(0)).cuda()
-        print("mask")
-        print(mask)
-        print(mask.size())
         emb_tensor = self.embeddings(vis_state_tensor)
-        print("embedding tensor")
-        print(emb_tensor)
         return self.doc_rnn(emb_tensor, mask)
 
 

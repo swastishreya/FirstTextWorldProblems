@@ -308,8 +308,6 @@ class StateNAction(object):
         self.graph_state_rep = self.get_state_rep_kge(), self.adj_matrix
 
     def step(self, visible_state, prev_action=None, pruned=True):
-        print("description")
-        print(visible_state)
         if pruned:
             self.step_pruned(visible_state, prev_action)
             return
