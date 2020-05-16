@@ -95,7 +95,7 @@ class Trainer:
     def train(self):
         self.start_time = time()
 
-        for epoch_no in tqdm(range(1, self.agent.nb_epochs + 1)):
+        for epoch_no in range(1, self.agent.nb_epochs + 1):
             print('Epoch {}'.format(epoch_no))
             accuracy = 0.0
             for game_no in range(len(self.env.games)):
@@ -109,6 +109,7 @@ class Trainer:
                     # Increase step counts.
                     steps = [step + int(not done) for step, done in zip(steps, dones)]
                     commands = self.agent.act(obs, scores, dones, infos)
+                    print(commands)
                     obs, scores, dones, infos = self.env.step(commands)
 
                 # Let the agent know the game is done.
