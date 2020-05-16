@@ -65,7 +65,8 @@ class HAgent:
         self.recipe = self._get_recipe(observation)
         location = Navigator.extract_location(self.description)
 
-        self.state.step(self.description, pruned=self.params['pruned'])
+        if(len(self.cmd_memory)==0): self.state.step(self.description.strip(), pruned=self.params['pruned'])
+        else : self.state.step(self.description.strip(),prev_action=self.cmd_memory[-1],pruned=self.params['pruned'])
         total_frames = 0 # have to update this somehow later
         epsilon = self.e_scheduler.value(total_frames)
         state_embedding, possible_commands = self.kg.act(self.state, epsilon)
@@ -90,7 +91,6 @@ class HAgent:
 
         # ask the model for the next command
         score, prob, value, high_level_command, index = self.model(state_description, possible_commands)
-
         cmds = flist()
         # translate the chosen high level command to a (set of) low level commands
         cmds.append(self.command_to_action(command=high_level_command,

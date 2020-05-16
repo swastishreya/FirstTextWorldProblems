@@ -180,7 +180,7 @@ class ActionDrQA(nn.Module):
         if opt['qa_init']:
             self.embeddings = nn.Embedding.from_pretrained(embeddings, freeze=False)
         else:
-            self.embeddings = nn.Embedding(opt['vocab_size'], opt['embedding_size'])
+            self.embeddings = nn.Embedding(opt['vocab_size'], opt['embedding_size'],padding_idx=0)
         self.doc_rnn = StackedBRNN(
             input_size=doc_input_size,
             hidden_size=opt['doc_hidden_size'],

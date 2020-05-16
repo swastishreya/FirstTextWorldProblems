@@ -33,9 +33,11 @@ class CustomAgent:
             pprint.pprint(self.config, width=1)
 
         # choose device
-        self.device = 'cuda' if torch.cuda.device_count() > 0 else 'cpu'
+        self.device = 'cuda' if torch.cuda.device_count() == 1 else 'cpu'
         if 'gpu' in kwargs and kwargs['gpu'] is not None:
             self.device = 'cuda:{}'.format(kwargs['gpu'])
+
+        # self.device = 'cuda:0'
 
         # training settings
         self.batch_size = self.config['training']['batch_size']
