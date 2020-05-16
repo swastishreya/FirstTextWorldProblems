@@ -29,6 +29,12 @@ params = {
         'vocab_size': 1000,
         'cuda_device': 1,
         'gameid': 0,
+        'doc_hidden_size': 64,
+        'doc_layers': 3,
+        'doc_dropout_rnn': 0.2,
+        'doc_dropout_rnn_output': True,
+        'doc_concat_rnn_layers': True,
+        'doc_rnn_padding': True
     }
 
 drqa_params = {

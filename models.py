@@ -86,20 +86,10 @@ class KGDQN(nn.Module):
         if random.random() > epsilon:
 
             feasible_actions_rep = state.all_actions_rep
-            with torch.no_grad():
-                drqa_input = torch.LongTensor(state.drqa_input).unsqueeze_(0).cuda()
 
-                s_t = self.state_gat(graph_state_rep).unsqueeze_(0).repeat(len(feasible_actions_rep), 1).cuda()
-    
-                encoded_doc = self.action_drqa(drqa_input, state)[1]
-                a_t = torch.LongTensor(feasible_actions_rep).cuda()#unsqueeze_(0).cuda()
+            # fwd, fwd_at = self.forward(s_t, emb_a_t, encoded_doc)
 
-            encoded_doc = encoded_doc.repeat(len(feasible_actions_rep), 1)
-            _, emb_a_t, _ = self.action_enc(a_t)
-
-            fwd, fwd_at = self.forward(s_t, emb_a_t, encoded_doc)
-
-            max_q, max_idx = torch.max(fwd, 0)
+            # max_q, max_idx = torch.max(fwd, 0)
 
             # action_ids = feasible_actions_rep[max_idx]
             # picked = True
@@ -113,7 +103,18 @@ class KGDQN(nn.Module):
                 feasible_actions_rep = state.pruned_actions_rep
             # action_ids = feasible_actions_rep[random.randrange(len(feasible_actions_rep))]
             # picked = False
-        return s_t, feasible_actions_rep#, picked, s_t[0].squeeze_(), fwd_at[max_idx].squeeze_()
+        with torch.no_grad():
+            drqa_input = torch.LongTensor(state.drqa_input).unsqueeze_(0).cuda()
+
+            encoded_doc = self.action_drqa(drqa_input, state)[1]
+            a_t = torch.LongTensor(feasible_actions_rep).cuda()#unsqueeze_(0).cuda()
+
+        encoded_doc = encoded_doc.repeat(len(feasible_actions_rep), 1)
+        _, emb_a_t, _ = self.action_enc(a_t)
+        s_t = self.state_gat(graph_state_rep).unsqueeze_(0).repeat(len(feasible_actions_rep), 1).cuda()
+        state_emb = torch.cat((s_t, encoded_doc), dim=1)
+        state_emb = self.state_fc(state_emb)
+        return state_emb, emb_a_t#, picked, s_t[0].squeeze_(), fwd_at[max_idx].squeeze_()
 
 
 class StateNetwork(nn.Module):
@@ -153,14 +154,14 @@ class StateNetwork(nn.Module):
 
     def load_vocab_kge(self):
         ent = {}
-        with open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/entity2id.tsv', 'r') as f:
+        with open('KGutils/entity2id.tsv', 'r') as f:
             for line in f:
                 e, eid = line.split('\t')
                 ent[int(eid.strip())] = e.strip()
         return ent
 
     def load_vocab(self):
-        vocab = eval(open('/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/KGutils/w2id.txt', 'r').readline())
+        vocab = eval(open('KGutils/w2id.txt', 'r').readline())
         return vocab
 
     def forward(self, graph_rep):
