@@ -20,10 +20,9 @@ class Model(nn.Module):
     command that has the highest expected return.
     """
     # keys of the dictionary of the current game state
-    _KEYS = ['observation', 'missing_items', 'unnecessary_items', 'description', 'previous_cmds', 'state_embedding'
-             'required_utils']
+    _KEYS = ['observation', 'missing_items', 'unnecessary_items', 'description', 'previous_cmds', 'state_embedding', 'required_utils']
 
-    def __init__(self, device, state_embedding_dim=16, hidden_size=64, bidirectional=True, hidden_linear_size=128):
+    def __init__(self, device, state_embedding_dim=100, hidden_size=64, bidirectional=True, hidden_linear_size=128):
         super(Model, self).__init__()
 
         # Parameters
@@ -43,7 +42,7 @@ class Model(nn.Module):
 
         # Model
         # Change state_embedding (graph embedding) dimension to embedding_dim
-        self.graph_encoder = nn.Linear(state_embedding_dim, self.embedding_dim)
+        # self.graph_encoder = nn.Linear(state_embedding_dim, self.embedding_dim)
 
         # Encoder for the state dictionary
         self.observation_encoder = nn.ModuleDict(
@@ -85,7 +84,7 @@ class Model(nn.Module):
         commands = self.tokenizer.process_cmds(commands, pad=True)
 
         # Encode the state embedding (graph)
-        input_dict['state_embedding'] = self.graph_encoder(state_description['state_embedding'])
+        input_dict['state_embedding'] = torch.mean(state_description['state_embedding'],0).type(torch.LongTensor).to(self.device)
 
         # Encode the state_description
         obs_encoded = self._observation_encoding(input_dict)

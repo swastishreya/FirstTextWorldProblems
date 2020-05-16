@@ -26,7 +26,7 @@ params = {
         'max_actions': 40,
         'init_graph_embeds': True,
         'qa_init': False,
-        'vocab_size': 1000,
+        'vocab_size': 1500,
         'cuda_device': 1,
         'gameid': 0,
         'doc_hidden_size': 64,
