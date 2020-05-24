@@ -142,4 +142,3 @@ class Model(nn.Module):
     def reset_hidden(self):
         self.state_hidden = None
 
-
