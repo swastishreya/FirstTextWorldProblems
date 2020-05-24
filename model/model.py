@@ -29,7 +29,7 @@ class Model(nn.Module):
         self.device = device
         self.hidden_size = hidden_size
         self.bidirectional = bidirectional
-        self.obs_encoded_hidden_size = self.hidden_size * len(self._KEYS) * (2 if bidirectional else 1)
+        self.obs_encoded_hidden_size = self.hidden_size * (len(self._KEYS) - 1) * (2 if bidirectional else 1) + state_embedding_dim
         self.cmd_encoded_hidden_size = self.hidden_size * (2 if bidirectional else 1)
         self.state_hidden = None
 
@@ -47,7 +47,7 @@ class Model(nn.Module):
         # Encoder for the state dictionary
         self.observation_encoder = nn.ModuleDict(
             {k: nn.GRU(self.embedding_dim, self.hidden_size, batch_first=True, bidirectional=bidirectional).to(
-                self.device) for k in self._KEYS}
+                self.device) for k in self._KEYS if k != 'state_embedding'}
         )
 
         # Encoder for the commands
@@ -84,10 +84,10 @@ class Model(nn.Module):
         commands = self.tokenizer.process_cmds(commands, pad=True)
 
         # Encode the state embedding (graph)
-        input_dict['state_embedding'] = torch.mean(state_description['state_embedding'],0).type(torch.LongTensor).to(self.device)
+        graph_embedding = torch.mean(state_description['state_embedding'],0).unsqueeze(0).to(self.device)
 
         # Encode the state_description
-        obs_encoded = self._observation_encoding(input_dict)
+        obs_encoded = self._observation_encoding(input_dict, graph_embedding)
 
         if self.state_hidden is None:
             self.state_hidden = torch.zeros((1, 1, self.obs_encoded_hidden_size), device=self.device)
@@ -122,7 +122,7 @@ class Model(nn.Module):
         return score, prob, value, action, index
 
 
-    def _observation_encoding(self, input_dict):
+    def _observation_encoding(self, input_dict, graph_embedding):
         """ Encodes the state_dict. Each string in the state_dict is encoded individually and then concatenated. """
         assert input_dict.keys() == self.observation_encoder.keys()
         hidden_states = []
@@ -135,10 +135,10 @@ class Model(nn.Module):
                 hidden = hidden.permute(1, 0, 2)
                 hidden = hidden.reshape(hidden.size(0), -1)
             hidden_states.append(hidden)
+        hidden_states.append(graph_embedding)
         hidden_states = torch.cat(hidden_states, -1).unsqueeze(1)  # (batch_size x 1 x 128)
         return hidden_states
 
     def reset_hidden(self):
         self.state_hidden = None
-
 
