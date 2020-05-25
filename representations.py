@@ -214,10 +214,7 @@ class StateNAction(object):
 
         for i, token in enumerate(word_tokenize(state_description)[:80]):
             if token not in self.vocab_drqa.keys():
-                # token = '<UNK>'
-                val = max(self.vocab_drqa.values()) + 1
-                self.vocab_drqa[token] = val
-                self.rev_vocab_drqa[val] = token
+                token = '<UNK>'
             state_desc_num.append(self.vocab_drqa[token])
 
         return state_desc_num
@@ -227,10 +224,7 @@ class StateNAction(object):
 
         for i, token in enumerate(word_tokenize(action)[:20]):
             if token not in self.vocab_drqa.keys():
-                # token = '<UNK>'
-                val = max(self.vocab_drqa.values()) + 1
-                self.vocab_drqa[token] = val
-                self.rev_vocab_drqa[val] = token
+                token = '<UNK>'
             action_desc_num[i] = self.vocab_drqa[token]
 
         return action_desc_num

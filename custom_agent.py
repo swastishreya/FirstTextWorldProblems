@@ -159,12 +159,12 @@ class CustomAgent:
 
             if len(cmd_q) > 0:
                 # has still commands to fire
-                current_score.append(0.)
+                current_score.append(0.0)
                 continue
 
             if done and not just_finished:
                 self.command_q[idx] = ['look']
-                current_score.append(0.)
+                current_score.append(0.0)
                 continue
             else:
                 self.agents[idx].update_score(score)

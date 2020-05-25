@@ -41,9 +41,7 @@ class Model(nn.Module):
             self.embedding.weight = nn.Parameter(self.tokenizer.embedding_init)
 
         # Model
-        # Change state_embedding (graph embedding) dimension to embedding_dim
-        # self.graph_encoder = nn.Linear(state_embedding_dim, self.embedding_dim)
-
+        
         # Encoder for the state dictionary
         self.observation_encoder = nn.ModuleDict(
             {k: nn.GRU(self.embedding_dim, self.hidden_size, batch_first=True, bidirectional=bidirectional).to(

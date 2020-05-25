@@ -91,6 +91,7 @@ class HAgent:
 
         # ask the model for the next command
         score, prob, value, high_level_command, index = self.model(state_description, possible_commands)
+        high_level_command = self.remove_UNK(high_level_command)
         cmds = flist()
         # translate the chosen high level command to a (set of) low level commands
         cmds.append(self.command_to_action(command=high_level_command,
@@ -195,24 +196,26 @@ class HAgent:
     def _know_recipe(self):
         return self.recipe != ''
 
+    def remove_UNK(self, command):
+        
+        if '<UNK>' in command:
+            if 'examine' in command:
+                cmd = command.replace('<UNK>', 'cookbook')
+            else:
+                cmd = command.replace('<UNK>', 'stove')
+        else:
+            cmd = command
+
+        return cmd
+
 
     def command_to_action(self, command, items, inventory, description):
         """
         Translates the high level command in a (set of) low level command.
         """
-        if command == 'drop unnecessary items':
-            cmd = self.drop_unnecessary_items(items, inventory)
-        # elif command == 'explore':
-        #     cmd = self.navigator.explore(description)
-        elif command == 'take required items from here':
-            cmd = self.take_all_required_items(items, description)
-        elif command == 'open stuff':
-            cmd = ['open fridge']
-            if self.hcp == 0:
-                cmd += ['look']
-        # elif 'go to' in command:
-        #     cmd = self.navigator.go_to(place=command.split('go to ')[1])
-        elif 'prepare meal' in command:
+
+        cmd = []
+        if 'prepare meal' in command:
             cmd = [command]
             if self.hcp == 0:
                 cmd += ['inventory']
