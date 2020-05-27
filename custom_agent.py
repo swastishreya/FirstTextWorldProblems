@@ -237,6 +237,10 @@ class CustomAgent:
             # add up the loss over time
             self.model_loss += policy_loss + 0.5 * value_loss - 0.1 * entropy
 
+            with open("./results/losses_with_e.txt",'a',encoding = 'utf-8') as f:
+                loss_string = "Env_id: " + str(self.env_id) + " Policy_loss: " + str(policy_loss.item()) + " Value_loss: " + str(value_loss.item()) + " Entropy: " + str(entropy.item()) + "\n" 
+                f.write(loss_string)
+
             self.statistics.stats_episode_append(
                 reward=reward,
                 policy=policy_loss.item(),
@@ -307,9 +311,10 @@ class CustomAgent:
         possible_points = possible_points if possible_points is not None else 5
         return points, possible_points
 
-    def train(self) -> None:
+    def train(self, env_id) -> None:
         """ Tell the agent it is in training mode. """
         self.mode = 'train'
+        self.env_id = env_id
 
     def eval(self) -> None:
         """ Tell the agent it is in evaluation mode. """

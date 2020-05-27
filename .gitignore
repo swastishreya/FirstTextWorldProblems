@@ -8,3 +8,4 @@
 *venv*
 *.csv
 sample_games/*
+train_games/*

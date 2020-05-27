@@ -95,12 +95,15 @@ class Trainer:
     def train(self):
         self.start_time = time()
 
+        games_id = {'/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/./train_games/tw-cooking-recipe2+take2+cut+open-BnYEixa9iJKmFZxO.ulx': 0, '/home/swasti/Documents/sem6/NLP/Modifications/FirstTextWorldProblems/./train_games/tw-cooking-recipe1+take1-11Oeig8bSVdGSp78.ulx': 1}
+
         for epoch_no in range(1, self.agent.nb_epochs + 1):
             print('Epoch {}'.format(epoch_no))
             accuracy = 0.0
             for game_no in range(len(self.env.games)):
                 obs, infos = self.env.reset()
-                self.agent.train()
+                idx = games_id[self.env.games[game_no]]
+                self.agent.train(idx)
 
                 scores = [0] * len(obs)
                 dones = [False] * len(obs)
@@ -109,7 +112,8 @@ class Trainer:
                     # Increase step counts.
                     steps = [step + int(not done) for step, done in zip(steps, dones)]
                     commands = self.agent.act(obs, scores, dones, infos)
-                    print(commands)
+                    # if epoch_no == 1 or epoch_no == 25 or epoch_no == 50:
+                    #     print(commands)
                     obs, scores, dones, infos = self.env.step(commands)
 
                 # Let the agent know the game is done.
@@ -119,8 +123,12 @@ class Trainer:
                 score, possible_points, percentage = get_points(score, infos['extra.walkthrough'][0])
                 print('Score for game {}: {}/{}'.format(game_no+1, score, possible_points))
                 accuracy += percentage
+                with open("./results/rewards_with_e.txt",'a',encoding = 'utf-8') as f:
+                    reward_str = "Env_id: " + str(idx) + " Score: " + str(score) + "/" + str(possible_points) + "\n" 
+                    f.write(reward_str)
 
             print('Accuracy {}'.format(accuracy/len(self.env.games)))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train an agent.")
@@ -128,6 +136,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     Trainer(args.games).train()
+
+    # env = Environment("./train_games/")
+    # env.setup_env()
 
 
 

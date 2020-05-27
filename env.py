@@ -85,6 +85,9 @@ class Environment:
         return request_infos
 
 
+if __name__ == "__main__":
+    env = Environment('./game')
+    env.manual_game()
 
 
 
